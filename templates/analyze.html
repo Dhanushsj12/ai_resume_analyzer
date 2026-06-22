@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume Analyzer & JD Matcher</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-900 text-white">
+
+<nav class="bg-gray-800 p-4">
+    <div class="container mx-auto flex justify-between">
+        <a href="/" class="text-2xl font-bold">ResumeAI Pro</a>
+        <a href="/" class="hover:text-blue-400">Home</a>
+    </div>
+</nav>
+
+<div class="container mx-auto px-4 py-10">
+
+
+<div class="max-w-4xl mx-auto">
+
+    <h1 class="text-4xl font-bold text-center mb-3">
+        AI Resume Analyzer & Job Matcher
+    </h1>
+
+    <p class="text-center text-gray-400 mb-8">
+        Upload your Resume and compare it against a Job Description
+    </p>
+
+    <form id="uploadForm" class="space-y-6">
+
+        <!-- Resume Upload -->
+        <div class="bg-gray-800 p-6 rounded-lg">
+
+            <label class="block text-lg font-semibold mb-3">
+                Upload Resume (PDF)
+            </label>
+
+            <input
+                type="file"
+                id="resume"
+                name="resume"
+                accept=".pdf"
+                class="w-full bg-gray-700 p-3 rounded-lg">
+
+            <p
+                id="fileName"
+                class="text-sm text-gray-400 mt-2">
+            </p>
+
+        </div>
+
+        <!-- Job Description -->
+        <div class="bg-gray-800 p-6 rounded-lg">
+
+            <label class="block text-lg font-semibold mb-3">
+                Paste Job Description
+            </label>
+
+            <textarea
+                id="job_description"
+                name="job_description"
+                rows="12"
+                placeholder="Paste the job description here..."
+                class="w-full bg-gray-700 rounded-lg p-4">
+            </textarea>
+
+        </div>
+
+        <button
+            type="submit"
+            class="w-full bg-blue-600 hover:bg-blue-700 p-4 rounded-lg text-lg font-semibold">
+
+            Analyze Resume
+
+        </button>
+
+    </form>
+
+    <!-- Loading -->
+
+    <div id="loading" class="hidden text-center mt-10">
+
+        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500 mx-auto mb-4">
+        </div>
+
+        <p>Analyzing Resume...</p>
+
+    </div>
+
+    <!-- Error -->
+
+    <div
+        id="error"
+        class="hidden bg-red-900 text-red-200 p-4 rounded-lg mt-6">
+    </div>
+
+    <!-- Results -->
+
+    <div
+        id="results"
+        class="hidden mt-10 bg-gray-800 rounded-lg p-6">
+
+        <h2 class="text-3xl font-bold mb-5">
+            Analysis Results
+        </h2>
+
+        <div
+            id="analysisContent"
+            class="whitespace-pre-wrap leading-relaxed">
+        </div>
+
+    </div>
+
+</div>
+
+
+</div>
+
+<script>
+
+const form = document.getElementById('uploadForm');
+
+const fileInput = document.getElementById('resume');
+
+const fileName = document.getElementById('fileName');
+
+const loading = document.getElementById('loading');
+
+const results = document.getElementById('results');
+
+const analysisContent = document.getElementById('analysisContent');
+
+const errorDiv = document.getElementById('error');
+
+fileInput.addEventListener('change', (e) => {
+
+    fileName.textContent =
+        e.target.files[0]?.name || '';
+
+});
+
+form.addEventListener('submit', async (e) => {
+
+    e.preventDefault();
+
+    const file = fileInput.files[0];
+
+    if (!file) {
+
+        showError(
+            'Please upload a PDF resume.'
+        );
+
+        return;
+    }
+
+    const formData = new FormData();
+
+    formData.append(
+        'resume',
+        file
+    );
+
+    formData.append(
+        'job_description',
+        document.getElementById(
+            'job_description'
+        ).value
+    );
+
+    loading.classList.remove('hidden');
+
+    results.classList.add('hidden');
+
+    errorDiv.classList.add('hidden');
+
+    try {
+
+        const response = await fetch(
+            '/upload',
+            {
+                method: 'POST',
+                body: formData
+            }
+        );
+
+        const data =
+            await response.json();
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error
+            );
+
+        }
+
+        analysisContent.textContent =
+            data.analysis;
+
+        results.classList.remove(
+            'hidden'
+        );
+
+    } catch (err) {
+
+        showError(
+            err.message
+        );
+
+    } finally {
+
+        loading.classList.add(
+            'hidden'
+        );
+
+    }
+
+});
+
+function showError(message) {
+
+    errorDiv.textContent = message;
+
+    errorDiv.classList.remove(
+        'hidden'
+    );
+
+}
+
+</script>
+
+</body>
+</html>
