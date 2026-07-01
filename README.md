@@ -1,10 +1,22 @@
 # AI Resume Analyzer & Hybrid ATS Checker
 
-A professional AI-powered Resume Analyzer and Hybrid ATS Checker built using **Flask**, **Gemini AI**, and a custom **ATS Engine**.
+A professional AI-powered Resume Analyzer that combines a **rule-based ATS engine** with **Google Gemini AI** to analyze resumes, compare them with job descriptions, calculate ATS scores, identify missing skills, and provide personalized improvement suggestions.
 
-Unlike traditional AI resume reviewers, this project combines **rule-based ATS scoring** with **Gemini AI** to provide accurate resume analysis, keyword matching, and career recommendations.
+## 🌐 Live Demo
 
----
+**Website:** [https://ai-resume-analyzer-cn4v.onrender.com](https://ai-resume-analyzer-cn4v.onrender.com/)
+
+## Features
+
+- ✅ Hybrid ATS Engine
+- ✅ Resume Parsing
+- ✅ Job Description Matching
+- ✅ ATS Score Calculation
+- ✅ Keyword Matching
+- ✅ Missing Skills Detection
+- ✅ AI Resume Review (Gemini)
+- ✅ Interview Readiness Score
+- ✅ Learning Roadmap
 
 ## Features
 
