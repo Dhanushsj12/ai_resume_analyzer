@@ -339,7 +339,20 @@
         throw new Error(data.error || 'Analysis failed. Please try again.');
       }
 
-      analysisContent.textContent = data.analysis;
+      analysisContent.textContent =
+`ATS Score: ${data.ats?.ats_score ?? 'N/A'}/100
+
+Resume Match: ${data.keyword_analysis?.resume_match_score ?? 'N/A'}%
+
+Matched Skills:
+${(data.keyword_analysis?.matched_skills || []).join(", ") || "None"}
+
+Missing Skills:
+${(data.keyword_analysis?.missing_skills || []).join(", ") || "None"}
+
+AI Review:
+
+${data.ai_review || "No AI review available."}`;
       resetPanels();
       results.classList.add('show');
 
