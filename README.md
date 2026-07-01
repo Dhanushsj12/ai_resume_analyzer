@@ -187,6 +187,48 @@ ai_resume_analyzer/
 ```
 
 ---
+# Screenshots
+
+## Homepage
+
+![Homepage](screenshots/homepage.png)
+
+---
+
+## Features
+
+![Features](screenshots/features.png)
+
+---
+
+## Working Process
+
+![Working Process](screenshots/working_process.png)
+
+---
+
+## Resume Analysis Page
+
+![Analyze Resume](screenshots/analyzepage.png)
+
+---
+
+## Analysis in Progress
+
+![Generating Result](screenshots/result_generating.png)
+
+---
+
+## ATS Analysis Result
+
+![Analysis Result](screenshots/result_page.png)
+
+---
+
+## Frequently Asked Questions
+
+![FAQ](screenshots/FAQ.png)
+-----
 
 ## Future Enhancements
 
