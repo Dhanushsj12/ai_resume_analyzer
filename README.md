@@ -1,85 +1,216 @@
-<<<<<<< HEAD
+# AI Resume Analyzer & Hybrid ATS Checker
 
-=======
-# AI Resume Analyzer & ATS Job Matcher
+A professional AI-powered Resume Analyzer and Hybrid ATS Checker built using **Flask**, **Gemini AI**, and a custom **ATS Engine**.
 
-AI-powered Resume Analyzer built using Flask, Gemini AI, PyPDF2, and Tailwind CSS.
+Unlike traditional AI resume reviewers, this project combines **rule-based ATS scoring** with **Gemini AI** to provide accurate resume analysis, keyword matching, and career recommendations.
+
+---
 
 ## Features
 
-* ATS Resume Score Analysis
-* Resume vs Job Description Matching
-* Missing Skills Detection
-* Matching Skills Identification
-* Resume Improvement Suggestions
-* Interview Readiness Assessment
-* Learning Roadmap Generation
-* PDF Resume Upload
-* Gemini AI Powered Analysis
+### Hybrid ATS Engine
+
+- ATS Score Calculation
+- Resume Match Score
+- Keyword Matching
+- Contact Information Detection
+- Skills Detection
+- Experience Detection
+- Education Detection
+- Project Detection
+- Certification Detection
+- Resume Parsing
+
+### Gemini AI Analysis
+
+- Executive Summary
+- Resume Strengths
+- Resume Weaknesses
+- Resume Improvements
+- Project Review
+- Missing Skills Explanation
+- Interview Readiness Analysis
+- Technical Interview Questions
+- 30-Day Learning Roadmap
+- Recruiter Feedback
+
+---
 
 ## Tech Stack
 
-* Python
-* Flask
-* Gemini 2.5 Flash
-* PyPDF2
-* HTML
-* Tailwind CSS
-* REST APIs
+### Backend
+
+- Python
+- Flask
+- Gemini 2.5 Flash
+- PyMuPDF
+- spaCy
+- RapidFuzz
+
+### Frontend
+
+- HTML5
+- CSS3
+- JavaScript
+
+### AI
+
+- Google Gemini API
+
+---
 
 ## Project Architecture
 
-1. User uploads resume PDF
-2. Resume text extracted using PyPDF2
-3. Job Description collected from user
-4. Gemini AI analyzes resume
-5. ATS score and recommendations generated
-6. Results displayed on dashboard
+```
+Resume Upload
+      │
+      ▼
+PDF Text Extraction (PyMuPDF)
+      │
+      ▼
+Resume Parser
+      │
+      ▼
+ATS Engine
+      │
+      ▼
+Keyword Matching
+      │
+      ▼
+Gemini AI Review
+      │
+      ▼
+Professional Dashboard
+```
 
-## Screenshots
+---
 
-### Home Page
+## ATS Engine
 
-![Home Page](screenshots/homepage.png)
+The ATS Engine calculates:
 
-### Resume Upload
+- Contact Score
+- Education Score
+- Experience Score
+- Project Score
+- Skills Score
+- Certification Score
+- Resume Length Score
+- Formatting Score
+- Keyword Match Score
 
-![Resume Upload](screenshots/upload_resume.png)
+This score is generated using Python and does **not** rely on AI.
 
-### Analysis Result
+---
 
-![Analysis Result](screenshots/analysis_result.png)
+## AI Features
+
+Gemini AI provides:
+
+- Executive Summary
+- Resume Review
+- Strengths
+- Weaknesses
+- Resume Improvements
+- Missing Skills Analysis
+- Interview Readiness
+- Technical Interview Questions
+- Learning Roadmap
+- Final Recruiter Opinion
+
+---
 
 ## Installation
 
+Clone the repository
+
 ```bash
 git clone https://github.com/Dhanushsj12/ai_resume_analyzer.git
+```
+
+Go to the project
+
+```bash
 cd ai_resume_analyzer
+```
+
+Install dependencies
+
+```bash
 pip install -r requirements.txt
+```
+
+Download the spaCy model
+
+```bash
+python -m spacy download en_core_web_sm
+```
+
+Run the application
+
+```bash
 python app.py
 ```
 
+---
+
 ## Environment Variables
 
-Create a .env file:
+Create a `.env` file in the project root.
 
 ```env
-GEMINI_API_KEY=YOUR_API_KEY
+GEMINI_API_KEY=YOUR_GEMINI_API_KEY
 ```
 
-## Future Improvements
+---
 
-* Resume PDF Export
-* Multiple Resume Comparison
-* Interview Question Generator
-* Resume Rewrite Suggestions
-* Cover Letter Generator
-* AI Career Advisor
+## Project Structure
+
+```
+ai_resume_analyzer/
+
+│── app.py
+│── parser.py
+│── ats_engine.py
+│── keyword_match.py
+│── ai_review.py
+│── requirements.txt
+│── .env
+
+├── templates/
+│   ├── index.html
+│   └── analyze.html
+
+├── static/
+
+├── uploads/
+```
+
+---
+
+## Future Enhancements
+
+- Resume Rewrite using AI
+- Cover Letter Generator
+- Resume PDF Report
+- Multiple Resume Comparison
+- Job Recommendation System
+- Resume Version History
+- AI Career Advisor
+- Recruiter Dashboard
+
+---
 
 ## Author
 
-Dhanush S J
+**Dhanush S J**
 
 GitHub: https://github.com/Dhanushsj12
+
 LinkedIn: https://www.linkedin.com/in/dhanush-s-j-034147271
->>>>>>> aebcc8c8b74207b51ec7bb927298a0b66e9b0d9c
+
+---
+
+## License
+
+This project is developed for educational and portfolio purposes.
