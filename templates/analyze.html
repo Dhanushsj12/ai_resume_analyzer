@@ -1,237 +1,354 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Resume Analyzer & JD Matcher</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analyze Resume — ResumeAI Pro</title>
+<meta name="description" content="Upload your resume and a job description to get an instant ATS match score and gap report.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F6F4EF;
+    --paper-panel:#EEEAE0;
+    --ink:#181A20;
+    --ink-soft:#565A66;
+    --ink-faint:#8B8E97;
+    --navy:#151B2E;
+    --navy-soft:#212940;
+    --navy-line:#333C57;
+    --amber:#DCA13A;
+    --amber-bright:#F0B94E;
+    --teal:#2E7A68;
+    --red:#B4432F;
+    --rule:#DBD4C4;
+    --ease:cubic-bezier(.22,.9,.3,1);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; min-height:100vh;
+    background:var(--paper); color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    line-height:1.5;
+  }
+  h1,h2,h3{font-family:'Fraunces',serif; font-weight:600; letter-spacing:-0.01em; margin:0;}
+  p{margin:0;}
+  a{color:inherit; text-decoration:none;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  .wrap{max-width:1180px; margin:0 auto; padding:0 32px;}
+  ::selection{background:var(--amber); color:var(--navy);}
+  a:focus-visible, button:focus-visible, label:focus-within{ outline:2px solid var(--amber); outline-offset:3px; border-radius:4px; }
+
+  header{ padding:22px 0; border-bottom:1px solid var(--rule); }
+  header .wrap{ display:flex; align-items:center; justify-content:space-between; }
+  .brand{ display:flex; align-items:center; gap:2px; font-family:'JetBrains Mono',monospace; font-size:16px; font-weight:600; }
+  .brand .bracket{ color:var(--amber); }
+  .back{ font-size:14px; font-weight:500; color:var(--ink-soft); display:flex; align-items:center; gap:7px; transition:color .25s var(--ease), transform .25s var(--ease); }
+  .back:hover{ color:var(--ink); transform:translateX(-3px); }
+  .back svg{ width:15px; height:15px; }
+
+  main{ padding:64px 0 100px; }
+  .page-head{ max-width:640px; margin-bottom:48px; }
+  .eyebrow{ display:inline-flex; align-items:center; gap:9px; font-family:'JetBrains Mono',monospace; font-size:12.5px; letter-spacing:.08em; color:var(--teal); text-transform:uppercase; margin-bottom:16px; }
+  .eyebrow::before{ content:''; width:7px; height:7px; border-radius:50%; background:var(--teal); box-shadow:0 0 0 4px rgba(46,122,104,.15); }
+  .page-head h1{ font-size:clamp(30px,3.6vw,42px); }
+  .page-head p{ margin-top:14px; color:var(--ink-soft); font-size:16.5px; }
+
+  .grid{ display:grid; grid-template-columns:1fr 1fr; gap:28px; align-items:start; }
+
+  .panel{
+    background:var(--paper-panel); border:1px solid var(--rule); border-radius:16px; padding:30px;
+  }
+  .panel h2{ font-family:'Inter',sans-serif; font-size:15px; font-weight:600; margin-bottom:6px; }
+  .panel .hint{ font-size:13.5px; color:var(--ink-faint); margin-bottom:20px; }
+
+  .dropzone{
+    position:relative; border:1.5px dashed var(--rule); border-radius:12px; background:var(--paper);
+    padding:34px 20px; text-align:center; cursor:pointer; transition:border-color .25s var(--ease), background .25s var(--ease), transform .15s var(--ease);
+  }
+  .dropzone:hover{ border-color:var(--amber); }
+  .dropzone.drag{ border-color:var(--amber); background:#FBF3E2; transform:scale(1.01); }
+  .dropzone input[type=file]{ position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+  .dropzone .icon{ width:38px; height:38px; margin:0 auto 14px; color:var(--navy); }
+  .dropzone .dz-title{ font-weight:600; font-size:15px; }
+  .dropzone .dz-sub{ font-size:13px; color:var(--ink-faint); margin-top:5px; }
+  .filepill{
+    display:none; align-items:center; gap:10px; margin-top:14px; padding:10px 14px;
+    background:var(--navy); color:#fff; border-radius:9px; font-size:13.5px; font-family:'JetBrains Mono',monospace;
+  }
+  .filepill.show{ display:inline-flex; }
+  .filepill svg{ width:15px; height:15px; flex:none; stroke:var(--teal); }
+  .filepill .fname{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:220px; }
+
+  textarea{
+    width:100%; resize:vertical; min-height:220px; margin-top:20px;
+    background:var(--paper); border:1px solid var(--rule); border-radius:10px; padding:16px;
+    font-family:'Inter',sans-serif; font-size:14.5px; color:var(--ink); line-height:1.6;
+    transition:border-color .25s var(--ease), box-shadow .25s var(--ease);
+  }
+  textarea:focus{ outline:none; border-color:var(--amber); box-shadow:0 0 0 3px rgba(220,161,58,.15); }
+  .charcount{ text-align:right; font-size:12px; color:var(--ink-faint); margin-top:6px; font-family:'JetBrains Mono',monospace; }
+
+  .submit-row{ margin-top:24px; }
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:9px; width:100%;
+    padding:15px 22px; border-radius:9px; border:none; cursor:pointer;
+    font-size:15px; font-weight:600; font-family:'Inter',sans-serif;
+    background:var(--navy); color:#fff;
+    transition:transform .25s var(--ease), box-shadow .25s var(--ease), background .25s var(--ease), opacity .25s var(--ease);
+  }
+  .btn:hover:not(:disabled){ transform:translateY(-2px); box-shadow:0 14px 28px -12px rgba(21,27,46,.5); }
+  .btn:disabled{ opacity:.55; cursor:not-allowed; }
+  .btn svg{ width:16px; height:16px; }
+
+  /* results / status panel */
+  .status-panel{
+    background:var(--navy); border-radius:16px; padding:30px; color:#fff; min-height:420px;
+    display:flex; flex-direction:column;
+  }
+  .status-panel h2{ font-family:'Inter',sans-serif; font-size:15px; font-weight:600; color:#fff; margin-bottom:20px; }
+
+  .idle-state{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; color:#7B819A; gap:14px; }
+  .idle-state svg{ width:44px; height:44px; opacity:.5; }
+  .idle-state p{ font-size:14px; max-width:26ch; }
+
+  .loading{ flex:1; display:none; flex-direction:column; align-items:center; justify-content:center; gap:22px; }
+  .loading.show{ display:flex; }
+  .scan-bar{ width:100%; max-width:280px; height:110px; background:var(--navy-soft); border-radius:10px; position:relative; overflow:hidden; }
+  .scan-bar .l{ position:absolute; left:16px; right:16px; height:7px; background:#3A4362; border-radius:2px; }
+  .scan-bar .l1{ top:18px; width:70%; } .scan-bar .l2{ top:38px; width:50%; } .scan-bar .l3{ top:58px; width:60%; } .scan-bar .l4{ top:78px; width:40%; }
+  .scan-bar .beam{ position:absolute; left:0; right:0; top:-30px; height:30px; background:linear-gradient(180deg, rgba(240,185,78,0), rgba(240,185,78,.8)); animation:sweep 1.7s cubic-bezier(.45,0,.55,1) infinite; }
+  @keyframes sweep{ 0%{top:-30px;} 100%{top:110px;} }
+  .loading-text{ font-family:'JetBrains Mono',monospace; font-size:13px; color:#A9AFC4; }
+  .loading-text .dots::after{ content:''; animation:dots 1.4s steps(4,end) infinite; }
+  @keyframes dots{ 0%{content:'';} 25%{content:'.';} 50%{content:'..';} 75%{content:'...';} 100%{content:'';} }
+
+  .error-box{
+    display:none; align-items:flex-start; gap:12px; background:rgba(180,67,47,.14); border:1px solid rgba(180,67,47,.4);
+    color:#F3B7A9; padding:16px; border-radius:10px; margin-top:0; font-size:14px; line-height:1.55;
+  }
+  .error-box.show{ display:flex; }
+  .error-box svg{ width:18px; height:18px; flex:none; margin-top:1px; stroke:#E48B77; }
+
+  .results{ display:none; flex-direction:column; flex:1; }
+  .results.show{ display:flex; }
+  .results-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+  .results-head .tag{ font-family:'JetBrains Mono',monospace; font-size:11.5px; letter-spacing:.06em; color:var(--teal); background:rgba(46,122,104,.18); padding:5px 10px; border-radius:20px; }
+  .analysis-content{
+    white-space:pre-wrap; font-size:14.5px; line-height:1.75; color:#DADFEE;
+    max-height:520px; overflow-y:auto; padding-right:6px;
+  }
+  .analysis-content::-webkit-scrollbar{ width:6px; }
+  .analysis-content::-webkit-scrollbar-thumb{ background:var(--navy-line); border-radius:3px; }
+
+  footer{ border-top:1px solid var(--rule); padding:26px 0; }
+  footer .wrap{ text-align:center; }
+  footer p{ color:var(--ink-faint); font-size:13px; font-family:'JetBrains Mono',monospace; }
+
+  @media (max-width:900px){
+    .grid{ grid-template-columns:1fr; }
+  }
+  @media (prefers-reduced-motion:reduce){
+    .scan-bar .beam{ animation:none; opacity:.6; }
+  }
+</style>
 </head>
+<body>
 
-<body class="bg-gray-900 text-white">
+<header>
+  <div class="wrap">
+    <a href="/" class="brand"><span class="bracket">[</span>ResumeAI<span class="bracket">]</span></a>
+    <a href="/" class="back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+      Back to home
+    </a>
+  </div>
+</header>
 
-<nav class="bg-gray-800 p-4">
-    <div class="container mx-auto flex justify-between">
-        <a href="/" class="text-2xl font-bold">ResumeAI Pro</a>
-        <a href="/" class="hover:text-blue-400">Home</a>
+<main>
+  <div class="wrap">
+
+    <div class="page-head">
+      <span class="eyebrow">Step-by-step</span>
+      <h1>Run your resume through the scanner</h1>
+      <p>Upload a PDF resume and paste the job description you're targeting. Gemini AI checks match, gaps and formatting in one pass.</p>
     </div>
-</nav>
 
-<div class="container mx-auto px-4 py-10">
+    <form id="uploadForm" novalidate>
+      <div class="grid">
 
+        <!-- LEFT: inputs -->
+        <div>
+          <div class="panel" style="margin-bottom:22px;">
+            <h2>01 · Resume</h2>
+            <p class="hint">PDF only. Not stored after analysis.</p>
 
-<div class="max-w-4xl mx-auto">
-
-    <h1 class="text-4xl font-bold text-center mb-3">
-        AI Resume Analyzer & Job Matcher
-    </h1>
-
-    <p class="text-center text-gray-400 mb-8">
-        Upload your Resume and compare it against a Job Description
-    </p>
-
-    <form id="uploadForm" class="space-y-6">
-
-        <!-- Resume Upload -->
-        <div class="bg-gray-800 p-6 rounded-lg">
-
-            <label class="block text-lg font-semibold mb-3">
-                Upload Resume (PDF)
+            <label class="dropzone" id="dropzone" for="resume">
+              <input type="file" id="resume" name="resume" accept=".pdf">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 21h14a2 2 0 0 0 2-2v-4M3 15v4a2 2 0 0 0 2 2"/>
+              </svg>
+              <div class="dz-title">Drop your resume here</div>
+              <div class="dz-sub">or click to browse — PDF, up to 10MB</div>
             </label>
 
-            <input
-                type="file"
-                id="resume"
-                name="resume"
-                accept=".pdf"
-                class="w-full bg-gray-700 p-3 rounded-lg">
+            <div class="filepill" id="filePill">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+              <span class="fname" id="fileName"></span>
+            </div>
+          </div>
 
-            <p
-                id="fileName"
-                class="text-sm text-gray-400 mt-2">
-            </p>
+          <div class="panel">
+            <h2>02 · Job description</h2>
+            <p class="hint">Paste the full listing for the most accurate match.</p>
+            <textarea id="job_description" name="job_description" placeholder="Paste the job description here…"></textarea>
+            <div class="charcount"><span id="charCount">0</span> characters</div>
 
+            <div class="submit-row">
+              <button type="submit" class="btn" id="submitBtn">
+                Analyze resume
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </button>
+            </div>
+          </div>
         </div>
 
-        <!-- Job Description -->
-        <div class="bg-gray-800 p-6 rounded-lg">
+        <!-- RIGHT: status / results -->
+        <div class="status-panel">
+          <h2>Result</h2>
 
-            <label class="block text-lg font-semibold mb-3">
-                Paste Job Description
-            </label>
+          <div class="idle-state" id="idleState">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+            <p>Your match score and gap report will appear here once you run an analysis.</p>
+          </div>
 
-            <textarea
-                id="job_description"
-                name="job_description"
-                rows="12"
-                placeholder="Paste the job description here..."
-                class="w-full bg-gray-700 rounded-lg p-4">
-            </textarea>
+          <div class="loading" id="loading">
+            <div class="scan-bar">
+              <div class="l l1"></div><div class="l l2"></div><div class="l l3"></div><div class="l l4"></div>
+              <div class="beam"></div>
+            </div>
+            <p class="loading-text">Scanning resume<span class="dots"></span></p>
+          </div>
 
+          <div class="error-box" id="error">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/></svg>
+            <span id="errorText"></span>
+          </div>
+
+          <div class="results" id="results">
+            <div class="results-head">
+              <span class="tag">ANALYSIS COMPLETE</span>
+            </div>
+            <div class="analysis-content" id="analysisContent"></div>
+          </div>
         </div>
 
-        <button
-            type="submit"
-            class="w-full bg-blue-600 hover:bg-blue-700 p-4 rounded-lg text-lg font-semibold">
-
-            Analyze Resume
-
-        </button>
-
+      </div>
     </form>
 
-    <!-- Loading -->
+  </div>
+</main>
 
-    <div id="loading" class="hidden text-center mt-10">
-
-        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500 mx-auto mb-4">
-        </div>
-
-        <p>Analyzing Resume...</p>
-
-    </div>
-
-    <!-- Error -->
-
-    <div
-        id="error"
-        class="hidden bg-red-900 text-red-200 p-4 rounded-lg mt-6">
-    </div>
-
-    <!-- Results -->
-
-    <div
-        id="results"
-        class="hidden mt-10 bg-gray-800 rounded-lg p-6">
-
-        <h2 class="text-3xl font-bold mb-5">
-            Analysis Results
-        </h2>
-
-        <div
-            id="analysisContent"
-            class="whitespace-pre-wrap leading-relaxed">
-        </div>
-
-    </div>
-
-</div>
-
-
-</div>
+<footer>
+  <div class="wrap"><p>© 2026 ResumeAI Pro · Built with Flask, Gemini AI &amp; a plain text editor</p></div>
+</footer>
 
 <script>
+  const form = document.getElementById('uploadForm');
+  const dropzone = document.getElementById('dropzone');
+  const fileInput = document.getElementById('resume');
+  const filePill = document.getElementById('filePill');
+  const fileName = document.getElementById('fileName');
+  const jdInput = document.getElementById('job_description');
+  const charCount = document.getElementById('charCount');
+  const submitBtn = document.getElementById('submitBtn');
 
-const form = document.getElementById('uploadForm');
+  const idleState = document.getElementById('idleState');
+  const loading = document.getElementById('loading');
+  const results = document.getElementById('results');
+  const analysisContent = document.getElementById('analysisContent');
+  const errorDiv = document.getElementById('error');
+  const errorText = document.getElementById('errorText');
 
-const fileInput = document.getElementById('resume');
+  function updateFilePill(){
+    const f = fileInput.files[0];
+    if(f){
+      fileName.textContent = f.name;
+      filePill.classList.add('show');
+    } else {
+      filePill.classList.remove('show');
+    }
+  }
+  fileInput.addEventListener('change', updateFilePill);
 
-const fileName = document.getElementById('fileName');
+  ['dragenter','dragover'].forEach(evt=>{
+    dropzone.addEventListener(evt, (e)=>{ e.preventDefault(); dropzone.classList.add('drag'); });
+  });
+  ['dragleave','drop'].forEach(evt=>{
+    dropzone.addEventListener(evt, (e)=>{ e.preventDefault(); dropzone.classList.remove('drag'); });
+  });
+  dropzone.addEventListener('drop', (e)=>{
+    const dt = e.dataTransfer;
+    if(dt && dt.files && dt.files.length){
+      fileInput.files = dt.files;
+      updateFilePill();
+    }
+  });
 
-const loading = document.getElementById('loading');
+  jdInput.addEventListener('input', ()=>{
+    charCount.textContent = jdInput.value.length;
+  });
 
-const results = document.getElementById('results');
+  function resetPanels(){
+    idleState.style.display = 'none';
+    loading.classList.remove('show');
+    results.classList.remove('show');
+    errorDiv.classList.remove('show');
+  }
 
-const analysisContent = document.getElementById('analysisContent');
+  function showError(message){
+    resetPanels();
+    errorText.textContent = message || 'Something went wrong. Please try again.';
+    errorDiv.classList.add('show');
+  }
 
-const errorDiv = document.getElementById('error');
-
-fileInput.addEventListener('change', (e) => {
-
-    fileName.textContent =
-        e.target.files[0]?.name || '';
-
-});
-
-form.addEventListener('submit', async (e) => {
-
+  form.addEventListener('submit', async (e)=>{
     e.preventDefault();
 
     const file = fileInput.files[0];
-
-    if (!file) {
-
-        showError(
-            'Please upload a PDF resume.'
-        );
-
-        return;
+    if(!file){
+      showError('Please upload a PDF resume before analyzing.');
+      return;
     }
 
     const formData = new FormData();
+    formData.append('resume', file);
+    formData.append('job_description', jdInput.value);
 
-    formData.append(
-        'resume',
-        file
-    );
+    resetPanels();
+    loading.classList.add('show');
+    submitBtn.disabled = true;
 
-    formData.append(
-        'job_description',
-        document.getElementById(
-            'job_description'
-        ).value
-    );
+    try{
+      const response = await fetch('/upload', { method:'POST', body:formData });
+      const data = await response.json();
 
-    loading.classList.remove('hidden');
+      if(!response.ok){
+        throw new Error(data.error || 'Analysis failed. Please try again.');
+      }
 
-    results.classList.add('hidden');
+      analysisContent.textContent = data.analysis;
+      resetPanels();
+      results.classList.add('show');
 
-    errorDiv.classList.add('hidden');
-
-    try {
-
-        const response = await fetch(
-            '/upload',
-            {
-                method: 'POST',
-                body: formData
-            }
-        );
-
-        const data =
-            await response.json();
-
-        if (!response.ok) {
-
-            throw new Error(
-                data.error
-            );
-
-        }
-
-        analysisContent.textContent =
-            data.analysis;
-
-        results.classList.remove(
-            'hidden'
-        );
-
-    } catch (err) {
-
-        showError(
-            err.message
-        );
-
-    } finally {
-
-        loading.classList.add(
-            'hidden'
-        );
-
+    } catch(err){
+      showError(err.message);
+    } finally{
+      submitBtn.disabled = false;
     }
-
-});
-
-function showError(message) {
-
-    errorDiv.textContent = message;
-
-    errorDiv.classList.remove(
-        'hidden'
-    );
-
-}
-
+  });
 </script>
 
 </body>

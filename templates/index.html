@@ -1,306 +1,478 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Resume Analyzer & ATS Job Matcher</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ResumeAI Pro — Make it past the scanner. Then the human.</title>
+<meta name="description" content="Upload your resume, match it against any job description, and see exactly what an ATS sees — in under 30 seconds.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F6F4EF;
+    --paper-panel:#EEEAE0;
+    --ink:#181A20;
+    --ink-soft:#565A66;
+    --ink-faint:#8B8E97;
+    --navy:#151B2E;
+    --navy-soft:#212940;
+    --navy-line:#333C57;
+    --amber:#DCA13A;
+    --amber-bright:#F0B94E;
+    --teal:#2E7A68;
+    --rule:#DBD4C4;
+    --radius:14px;
+    --maxw:1180px;
+    --ease:cubic-bezier(.22,.9,.3,1);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    line-height:1.5;
+  }
+  h1,h2,h3{font-family:'Fraunces',serif;font-weight:600;letter-spacing:-0.01em;margin:0;}
+  p{margin:0;}
+  a{color:inherit;text-decoration:none;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 32px;}
+  img,svg{display:block;}
+  ::selection{background:var(--amber);color:var(--navy);}
+
+  /* focus visibility */
+  a:focus-visible, button:focus-visible, summary:focus-visible{
+    outline:2px solid var(--amber);
+    outline-offset:3px;
+    border-radius:4px;
+  }
+
+  /* ---------- NAV ---------- */
+  header{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    padding:22px 0;
+    transition:padding .35s var(--ease), background .35s var(--ease), box-shadow .35s var(--ease);
+  }
+  header.scrolled{
+    padding:12px 0;
+    background:rgba(21,27,46,.86);
+    backdrop-filter:blur(10px);
+    box-shadow:0 8px 30px -12px rgba(0,0,0,.35);
+  }
+  header .wrap{display:flex; align-items:center; justify-content:space-between;}
+  .brand{
+    display:flex; align-items:center; gap:2px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:16px; font-weight:600;
+    color:var(--ink);
+    transition:color .35s var(--ease);
+  }
+  header.scrolled .brand{color:#fff;}
+  .brand .bracket{color:var(--amber);}
+  nav.links{display:flex; align-items:center; gap:34px;}
+  .navlink{
+    font-size:14.5px; font-weight:500; color:var(--ink-soft);
+    position:relative; padding:4px 0; transition:color .25s var(--ease);
+  }
+  header.scrolled .navlink{color:#C7CBDA;}
+  .navlink::after{
+    content:''; position:absolute; left:0; bottom:0; width:0; height:1px;
+    background:var(--amber); transition:width .3s var(--ease);
+  }
+  .navlink:hover{color:var(--ink);}
+  header.scrolled .navlink:hover{color:#fff;}
+  .navlink:hover::after{width:100%;}
+  .btn{
+    display:inline-flex; align-items:center; gap:9px;
+    padding:12px 22px; border-radius:9px;
+    font-size:14.5px; font-weight:600; font-family:'Inter',sans-serif;
+    border:1px solid transparent; cursor:pointer;
+    transition:transform .25s var(--ease), box-shadow .25s var(--ease), background .25s var(--ease), border-color .25s var(--ease);
+  }
+  .btn-primary{ background:var(--navy); color:#fff; }
+  .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 12px 24px -10px rgba(21,27,46,.5); }
+  .btn-primary svg{transition:transform .3s var(--ease);}
+  .btn-primary:hover svg{transform:translateX(3px);}
+  .btn-ghost{ background:transparent; border-color:var(--rule); color:var(--ink); }
+  .btn-ghost:hover{ border-color:var(--ink); transform:translateY(-2px); }
+  .btn-amber{ background:var(--amber); color:var(--navy); }
+  .btn-amber:hover{ background:var(--amber-bright); transform:translateY(-2px); box-shadow:0 12px 24px -10px rgba(220,161,58,.55); }
+  header.scrolled .btn-ghost{border-color:var(--navy-line); color:#fff;}
+  header.scrolled .btn-ghost:hover{border-color:#fff;}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    padding:168px 0 96px;
+    display:grid; grid-template-columns:1.05fr .95fr; gap:56px; align-items:center;
+  }
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:9px;
+    font-family:'JetBrains Mono',monospace; font-size:12.5px; letter-spacing:.08em;
+    color:var(--teal); text-transform:uppercase; margin-bottom:22px;
+  }
+  .eyebrow::before{content:''; width:7px; height:7px; border-radius:50%; background:var(--teal); box-shadow:0 0 0 4px rgba(46,122,104,.15);}
+  .hero h1{ font-size:clamp(36px,4.6vw,58px); line-height:1.06; }
+  .hero h1 em{ font-style:normal; color:var(--amber); position:relative; }
+  .hero p.lede{ margin-top:22px; font-size:18px; color:var(--ink-soft); max-width:46ch; }
+  .hero .cta-row{ margin-top:34px; display:flex; gap:14px; flex-wrap:wrap; }
+
+  /* scanner card */
+  .scanner{
+    position:relative;
+    background:var(--navy);
+    border-radius:20px;
+    padding:26px;
+    box-shadow:0 40px 80px -30px rgba(21,27,46,.55);
+    overflow:hidden;
+  }
+  .scanner-head{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom:18px; color:#8892AD; font-family:'JetBrains Mono',monospace; font-size:11.5px; letter-spacing:.06em;
+  }
+  .scanner-dots{display:flex; gap:6px;}
+  .scanner-dots span{width:8px;height:8px;border-radius:50%;background:var(--navy-line);}
+  .doc{
+    position:relative; background:var(--paper); border-radius:12px; padding:26px 24px;
+    overflow:hidden; min-height:300px;
+  }
+  .doc .name-line{ width:52%; height:13px; background:var(--ink); opacity:.85; border-radius:2px; margin-bottom:8px;}
+  .doc .role-line{ width:38%; height:8px; background:var(--ink-faint); border-radius:2px; margin-bottom:22px;}
+  .line{ height:8px; border-radius:2px; background:#DAD4C6; margin-bottom:11px; transition:background .3s; }
+  .line.w1{width:92%;} .line.w2{width:74%;} .line.w3{width:83%;} .line.w4{width:60%;}
+  .line.w5{width:88%;} .line.w6{width:68%;} .line.w7{width:79%;}
+  .line.match{ animation:matchPulse 3.6s ease-in-out infinite; }
+  .line.l1{animation-delay:.35s;} .line.l2{animation-delay:1.05s;} .line.l3{animation-delay:1.9s;}
+  .line.l4{animation-delay:2.5s;} .line.l5{animation-delay:3.1s;}
+  @keyframes matchPulse{
+    0%,10%{background:#DAD4C6;}
+    16%{background:var(--amber-bright); box-shadow:0 0 0 2px rgba(240,185,78,.25);}
+    30%,100%{background:var(--teal); opacity:.85;}
+  }
+  .beam{
+    position:absolute; left:0; right:0; height:46px; top:-46px;
+    background:linear-gradient(180deg, rgba(240,185,78,0) 0%, rgba(240,185,78,.35) 45%, rgba(240,185,78,.85) 100%);
+    animation:sweep 3.6s cubic-bezier(.45,0,.55,1) infinite;
+    pointer-events:none;
+  }
+  @keyframes sweep{
+    0%{ top:-46px; }
+    92%{ top:100%; }
+    100%{ top:100%; }
+  }
+  .badge-float{
+    position:absolute; right:22px; bottom:22px;
+    background:var(--paper); border-radius:10px; padding:10px 14px;
+    display:flex; align-items:center; gap:9px;
+    font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:600; color:var(--navy);
+    box-shadow:0 14px 30px -10px rgba(0,0,0,.35);
+    opacity:0; transform:translateY(8px);
+    animation:badgeIn .5s var(--ease) 3.55s infinite;
+  }
+  @keyframes badgeIn{
+    0%,92%{opacity:0; transform:translateY(8px);}
+    97%,100%{opacity:1; transform:translateY(0);}
+  }
+  .badge-float .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);}
+
+  @media (prefers-reduced-motion:reduce){
+    .beam, .line.match, .badge-float{animation:none !important;}
+    .line.match{background:var(--teal);}
+    .badge-float{opacity:1; transform:none;}
+    html{scroll-behavior:auto;}
+  }
+
+  /* ---------- DATA STRIP ---------- */
+  .datastrip{ border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); padding:26px 0; }
+  .datastrip .wrap{ display:flex; justify-content:space-between; flex-wrap:wrap; gap:18px; }
+  .stat{font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--ink-soft);}
+  .stat b{ color:var(--ink); font-size:15px; margin-right:6px; }
+
+  /* ---------- SECTION shared ---------- */
+  section{ padding:104px 0; }
+  .section-head{ max-width:640px; margin-bottom:56px; }
+  .section-head .eyebrow{ color:var(--amber); }
+  .section-head .eyebrow::before{ background:var(--amber); box-shadow:0 0 0 4px rgba(220,161,58,.15); }
+  .section-head h2{ font-size:clamp(28px,3.4vw,40px); }
+  .section-head p{ margin-top:16px; color:var(--ink-soft); font-size:17px; }
+
+  .reveal{ opacity:0; transform:translateY(22px); transition:opacity .7s var(--ease), transform .7s var(--ease); }
+  .reveal.in-view{ opacity:1; transform:none; }
+
+  /* ---------- PROCESS ---------- */
+  .process{ background:var(--navy); color:#fff; }
+  .process .section-head p{ color:#A9AFC4; }
+  .process .section-head .eyebrow{ color:var(--amber-bright); }
+  .steps{ display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--navy-line); border-radius:16px; overflow:hidden; }
+  .step{ background:var(--navy); padding:34px 26px; position:relative; }
+  .step .num{ font-family:'JetBrains Mono',monospace; color:var(--amber-bright); font-size:13px; margin-bottom:38px; display:block; }
+  .step h3{ font-family:'Inter',sans-serif; font-size:18px; font-weight:600; margin-bottom:10px; }
+  .step p{ color:#9BA1B8; font-size:14.5px; line-height:1.55; }
+
+  /* ---------- FEATURES ---------- */
+  .features-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+  .feature{
+    background:var(--paper-panel); border:1px solid var(--rule); border-radius:16px;
+    padding:30px 26px; transition:transform .35s var(--ease), box-shadow .35s var(--ease), border-color .35s var(--ease);
+  }
+  .feature:hover{ transform:translateY(-6px); box-shadow:0 24px 46px -22px rgba(24,26,32,.25); border-color:var(--amber); }
+  .feature .icon{ width:42px; height:42px; border-radius:10px; background:var(--navy); display:flex; align-items:center; justify-content:center; margin-bottom:20px; }
+  .feature .icon svg{ width:20px; height:20px; stroke:var(--amber-bright); }
+  .feature h3{ font-family:'Inter',sans-serif; font-size:17.5px; font-weight:600; margin-bottom:9px; }
+  .feature p{ color:var(--ink-soft); font-size:14.5px; line-height:1.6; }
+
+  /* ---------- FAQ ---------- */
+  .faq-list{ max-width:760px; }
+  details{ border-bottom:1px solid var(--rule); padding:22px 0; }
+  details summary{ list-style:none; cursor:pointer; display:flex; justify-content:space-between; align-items:center; font-family:'Inter',sans-serif; font-weight:600; font-size:16.5px; }
+  details summary::-webkit-details-marker{ display:none; }
+  .chev{ width:18px; height:18px; flex:none; transition:transform .3s var(--ease); stroke:var(--ink-soft); }
+  details[open] .chev{ transform:rotate(45deg); stroke:var(--amber); }
+  details p{ color:var(--ink-soft); font-size:15px; margin-top:14px; line-height:1.65; max-width:60ch; }
+
+  /* ---------- CTA ---------- */
+  .cta-band{ background:var(--navy); color:#fff; text-align:center; padding:96px 0; }
+  .cta-band h2{ font-size:clamp(30px,3.8vw,44px); color:#fff; }
+  .cta-band p{ color:#A9AFC4; margin-top:16px; font-size:17px; }
+  .cta-band .cta-row{ justify-content:center; margin-top:32px; }
+
+  /* ---------- FOOTER ---------- */
+  footer{ background:var(--navy); border-top:1px solid var(--navy-line); padding:30px 0; }
+  footer .wrap{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
+  footer p{ color:#767C93; font-size:13px; font-family:'JetBrains Mono',monospace; }
+
+  @media (max-width:900px){
+    .hero{ grid-template-columns:1fr; padding-top:132px; }
+    .steps{ grid-template-columns:1fr 1fr; }
+    .features-grid{ grid-template-columns:1fr 1fr; }
+    nav.links{ display:none; }
+  }
+  @media (max-width:560px){
+    .wrap{ padding:0 20px; }
+    .steps{ grid-template-columns:1fr; }
+    .features-grid{ grid-template-columns:1fr; }
+    .datastrip .wrap{ flex-direction:column; gap:10px; }
+    .hero .cta-row .btn{ flex:1; justify-content:center; }
+  }
+</style>
 </head>
+<body>
 
-<body class="bg-gray-900 text-white">
+<header id="siteHeader">
+  <div class="wrap">
+    <a href="/" class="brand"><span class="bracket">[</span>ResumeAI<span class="bracket">]</span></a>
+    <nav class="links">
+      <a href="#features" class="navlink">Features</a>
+      <a href="#process" class="navlink">How it works</a>
+      <a href="#faq" class="navlink">FAQ</a>
+      <a href="/analyze" class="btn btn-amber">Analyze resume</a>
+    </nav>
+  </div>
+</header>
 
-
-<!-- Navbar -->
-<nav class="bg-gray-800 shadow-lg">
-    <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-        <a href="/" class="text-2xl font-bold text-blue-400">
-            ResumeAI Pro
+<section class="hero">
+  <div class="wrap" style="display:contents;">
+    <div>
+      <span class="eyebrow">Built on Gemini AI</span>
+      <h1>Make it past the scanner.<br>Then the <em>human</em>.</h1>
+      <p class="lede">Most resumes never reach a person — an ATS filters them first. Upload yours, paste the job description, and see exactly what the machine sees: your match score, your gaps, and what to fix before you hit submit.</p>
+      <div class="cta-row">
+        <a href="/analyze" class="btn btn-primary">
+          Analyze my resume
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </a>
-
-        <div class="space-x-6">
-            <a href="#features" class="hover:text-blue-400 transition">
-                Features
-            </a>
-
-            <a href="#faq" class="hover:text-blue-400 transition">
-                FAQ
-            </a>
-
-            <a href="/analyze"
-               class="bg-blue-600 px-4 py-2 rounded-lg hover:bg-blue-700 transition">
-                Analyze Resume
-            </a>
-        </div>
-    </div>
-</nav>
-
-<!-- Hero Section -->
-<section class="container mx-auto px-6 py-24 text-center">
-
-    <h1 class="text-5xl md:text-6xl font-bold mb-6">
-        AI Resume Analyzer &
-        <span class="text-blue-400">
-            ATS Job Matcher
-        </span>
-    </h1>
-
-    <p class="text-xl text-gray-400 max-w-3xl mx-auto mb-10">
-        Upload your resume, compare it with any job description,
-        discover missing skills, improve ATS score,
-        and get personalized interview preparation insights.
-    </p>
-
-    <div class="space-x-4">
-
-        <a href="/analyze"
-           class="bg-blue-600 px-8 py-4 rounded-lg text-lg hover:bg-blue-700 transition">
-
-            Analyze My Resume
-
-        </a>
-
-        <a href="#features"
-           class="border border-gray-600 px-8 py-4 rounded-lg hover:bg-gray-800 transition">
-
-            Learn More
-
-        </a>
-
+        <a href="#process" class="btn btn-ghost">See how scoring works</a>
+      </div>
     </div>
 
+    <div class="scanner" role="img" aria-label="Animation of a resume being scanned, with matching keywords highlighting in amber then teal">
+      <div class="scanner-head">
+        <span>ATS_SCAN.EXE — LIVE</span>
+        <div class="scanner-dots"><span></span><span></span><span></span></div>
+      </div>
+      <div class="doc">
+        <div class="name-line"></div>
+        <div class="role-line"></div>
+        <div class="line w1 match l1"></div>
+        <div class="line w2"></div>
+        <div class="line w3 match l2"></div>
+        <div class="line w4"></div>
+        <div class="line w5 match l3"></div>
+        <div class="line w6"></div>
+        <div class="line w7 match l4"></div>
+        <div class="line w2"></div>
+        <div class="line w4 match l5"></div>
+        <div class="beam"></div>
+      </div>
+      <div class="badge-float"><span class="dot"></span>87% MATCH</div>
+    </div>
+  </div>
 </section>
 
-<!-- Stats Section -->
-<section class="container mx-auto px-6 py-10">
+<div class="datastrip">
+  <div class="wrap">
+    <span class="stat"><b>99%</b>parse accuracy</span>
+    <span class="stat"><b>40+</b>keywords checked per scan</span>
+    <span class="stat"><b>&lt;30s</b>average turnaround</span>
+    <span class="stat"><b>6</b>gaps flagged on average</span>
+  </div>
+</div>
 
-    <div class="grid md:grid-cols-4 gap-6">
-
-        <div class="bg-gray-800 p-6 rounded-lg text-center">
-            <h2 class="text-3xl font-bold text-blue-400">ATS</h2>
-            <p class="text-gray-400 mt-2">Resume Scoring</p>
-        </div>
-
-        <div class="bg-gray-800 p-6 rounded-lg text-center">
-            <h2 class="text-3xl font-bold text-blue-400">AI</h2>
-            <p class="text-gray-400 mt-2">Gemini Powered</p>
-        </div>
-
-        <div class="bg-gray-800 p-6 rounded-lg text-center">
-            <h2 class="text-3xl font-bold text-blue-400">JD</h2>
-            <p class="text-gray-400 mt-2">Job Matching</p>
-        </div>
-
-        <div class="bg-gray-800 p-6 rounded-lg text-center">
-            <h2 class="text-3xl font-bold text-blue-400">24/7</h2>
-            <p class="text-gray-400 mt-2">Instant Analysis</p>
-        </div>
-
+<section class="process" id="process">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">The process</span>
+      <h2>Four steps, one honest score.</h2>
+      <p>No accounts, no waiting rooms. Drop in your files and get a reading you can act on immediately.</p>
     </div>
-
+    <div class="steps reveal">
+      <div class="step">
+        <span class="num mono">01</span>
+        <h3>Upload your resume</h3>
+        <p>Drop in a PDF. We parse structure, sections and formatting the way an ATS would.</p>
+      </div>
+      <div class="step">
+        <span class="num mono">02</span>
+        <h3>Paste the job description</h3>
+        <p>Add the listing you're targeting so scoring is matched to that exact role.</p>
+      </div>
+      <div class="step">
+        <span class="num mono">03</span>
+        <h3>Gemini scores the match</h3>
+        <p>Keyword coverage, skill overlap and formatting are checked against the JD in one pass.</p>
+      </div>
+      <div class="step">
+        <span class="num mono">04</span>
+        <h3>Get your gap report</h3>
+        <p>See what's missing, what's weak, and what to fix first — in plain language.</p>
+      </div>
+    </div>
+  </div>
 </section>
 
-<!-- Features -->
-<section id="features" class="container mx-auto px-6 py-20">
+<section id="features">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">What you get</span>
+      <h2>Everything a recruiter's software checks — before they ever see it.</h2>
+    </div>
+    <div class="features-grid reveal">
 
-    <h2 class="text-4xl font-bold text-center mb-12">
-        Features
-    </h2>
+      <div class="feature">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M12 3v12M7 8l5-5 5 5M5 21h14"/></svg></div>
+        <h3>Resume analysis</h3>
+        <p>Gemini reads your resume the way a hiring pipeline does, section by section.</p>
+      </div>
 
-    <div class="grid md:grid-cols-3 gap-8">
+      <div class="feature">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M4 19h16M8 19V9m4 10V5m4 14v-7"/></svg></div>
+        <h3>ATS match score</h3>
+        <p>A single, honest percentage that reflects how a real applicant tracking system would rank you.</p>
+      </div>
 
-        <!-- Feature 1 -->
-        <div class="bg-gray-800 p-8 rounded-lg hover:scale-105 transition">
+      <div class="feature">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg></div>
+        <h3>Job description matching</h3>
+        <p>Compare against any listing and see exactly where the overlap ends.</p>
+      </div>
 
-            <div class="text-5xl mb-4">
-                🤖
-            </div>
+      <div class="feature">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M3 17l6-6 4 4 8-8M14 6h7v7"/></svg></div>
+        <h3>Improvement suggestions</h3>
+        <p>Specific, line-level edits — not generic advice you've already read elsewhere.</p>
+      </div>
 
-            <h3 class="text-2xl font-bold mb-3">
-                AI Resume Analysis
-            </h3>
+      <div class="feature">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M10.5 3.5l3 3-8 8-4 1 1-4 8-8zM17 21h4M17 17h4"/></svg></div>
+        <h3>Skill gap detection</h3>
+        <p>Missing tools, certifications or soft skills, surfaced before a recruiter notices them.</p>
+      </div>
 
-            <p class="text-gray-400">
-                Advanced Gemini AI evaluates your resume
-                and provides detailed professional feedback.
-            </p>
-
-        </div>
-
-        <!-- Feature 2 -->
-        <div class="bg-gray-800 p-8 rounded-lg hover:scale-105 transition">
-
-            <div class="text-5xl mb-4">
-                📊
-            </div>
-
-            <h3 class="text-2xl font-bold mb-3">
-                ATS Score
-            </h3>
-
-            <p class="text-gray-400">
-                Receive a comprehensive ATS score
-                and understand how recruiters view your profile.
-            </p>
-
-        </div>
-
-        <!-- Feature 3 -->
-        <div class="bg-gray-800 p-8 rounded-lg hover:scale-105 transition">
-
-            <div class="text-5xl mb-4">
-                🎯
-            </div>
-
-            <h3 class="text-2xl font-bold mb-3">
-                JD Matching
-            </h3>
-
-            <p class="text-gray-400">
-                Compare your resume against any job description
-                and discover missing skills instantly.
-            </p>
-
-        </div>
-
-        <!-- Feature 4 -->
-        <div class="bg-gray-800 p-8 rounded-lg hover:scale-105 transition">
-
-            <div class="text-5xl mb-4">
-                📈
-            </div>
-
-            <h3 class="text-2xl font-bold mb-3">
-                Resume Improvements
-            </h3>
-
-            <p class="text-gray-400">
-                Get actionable recommendations
-                to improve your resume quality.
-            </p>
-
-        </div>
-
-        <!-- Feature 5 -->
-        <div class="bg-gray-800 p-8 rounded-lg hover:scale-105 transition">
-
-            <div class="text-5xl mb-4">
-                🛠️
-            </div>
-
-            <h3 class="text-2xl font-bold mb-3">
-                Skill Gap Analysis
-            </h3>
-
-            <p class="text-gray-400">
-                Identify missing technical and soft skills
-                required for your target role.
-            </p>
-
-        </div>
-
-        <!-- Feature 6 -->
-        <div class="bg-gray-800 p-8 rounded-lg hover:scale-105 transition">
-
-            <div class="text-5xl mb-4">
-                🎤
-            </div>
-
-            <h3 class="text-2xl font-bold mb-3">
-                Interview Readiness
-            </h3>
-
-            <p class="text-gray-400">
-                Receive interview preparation insights
-                and readiness assessment.
-            </p>
-
-        </div>
+      <div class="feature">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M12 1a4 4 0 0 1 4 4v6a4 4 0 0 1-8 0V5a4 4 0 0 1 4-4zM19 11a7 7 0 0 1-14 0M12 18v4"/></svg></div>
+        <h3>Interview readiness</h3>
+        <p>A readiness read-out based on the gap between what you have and what the role asks for.</p>
+      </div>
 
     </div>
-
+  </div>
 </section>
 
-<!-- FAQ -->
-<section id="faq" class="container mx-auto px-6 py-20">
-
-    <h2 class="text-4xl font-bold text-center mb-10">
-        Frequently Asked Questions
-    </h2>
-
-    <div class="max-w-4xl mx-auto space-y-6">
-
-        <div class="bg-gray-800 p-6 rounded-lg">
-            <h3 class="text-xl font-bold mb-2">
-                How does the analysis work?
-            </h3>
-
-            <p class="text-gray-400">
-                Gemini AI analyzes your resume,
-                evaluates ATS compatibility,
-                compares it with job descriptions,
-                and provides improvement suggestions.
-            </p>
-        </div>
-
-        <div class="bg-gray-800 p-6 rounded-lg">
-            <h3 class="text-xl font-bold mb-2">
-                What file format is supported?
-            </h3>
-
-            <p class="text-gray-400">
-                Currently PDF files are supported.
-            </p>
-        </div>
-
-        <div class="bg-gray-800 p-6 rounded-lg">
-            <h3 class="text-xl font-bold mb-2">
-                Is my resume stored?
-            </h3>
-
-            <p class="text-gray-400">
-                No. Your resume is processed for analysis
-                and is not permanently stored.
-            </p>
-        </div>
-
+<section id="faq">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Questions</span>
+      <h2>Before you upload anything</h2>
     </div>
-
-</section>
-
-<!-- CTA -->
-<section class="container mx-auto px-6 py-16 text-center">
-
-    <h2 class="text-4xl font-bold mb-6">
-        Ready to Improve Your Resume?
-    </h2>
-
-    <p class="text-gray-400 mb-8">
-        Upload your resume and get professional AI feedback instantly.
-    </p>
-
-    <a href="/analyze"
-       class="bg-blue-600 px-8 py-4 rounded-lg text-lg hover:bg-blue-700 transition">
-
-        Start Analysis
-
-    </a>
-
-</section>
-
-<!-- Footer -->
-<footer class="bg-gray-800 py-8 mt-10">
-
-    <div class="container mx-auto text-center text-gray-400">
-
-        <p>
-            © 2026 ResumeAI Pro | Built with Flask, Gemini AI & Tailwind CSS
-        </p>
-
+    <div class="faq-list reveal">
+      <details open>
+        <summary>How does the analysis work?
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        </summary>
+        <p>Gemini AI reads your resume, checks ATS compatibility, compares it against the job description you provide, and returns concrete suggestions — not a vague score with no explanation.</p>
+      </details>
+      <details>
+        <summary>What file format is supported?
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        </summary>
+        <p>PDF only, for now. Export your resume as a PDF before uploading.</p>
+      </details>
+      <details>
+        <summary>Is my resume stored?
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        </summary>
+        <p>No. Your file is processed in memory for the analysis and is not kept afterward.</p>
+      </details>
+      <details>
+        <summary>Do I need an account?
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        </summary>
+        <p>No sign-up. Upload, paste the job description, and get your results in the same session.</p>
+      </details>
     </div>
+  </div>
+</section>
 
+<section class="cta-band">
+  <div class="wrap">
+    <h2>Ready to see your score?</h2>
+    <p>Takes under thirty seconds. No account required.</p>
+    <div class="cta-row">
+      <a href="/analyze" class="btn btn-amber">Start analysis</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <a href="/" class="brand" style="color:#fff;"><span class="bracket">[</span>ResumeAI<span class="bracket">]</span></a>
+    <p>© 2026 ResumeAI Pro · Built with Flask, Gemini AI &amp; a plain text editor</p>
+  </div>
 </footer>
 
+<script>
+  // nav scroll state
+  const header = document.getElementById('siteHeader');
+  const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 30);
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive:true });
+
+  // scroll reveal
+  const revealEls = document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window){
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){ e.target.classList.add('in-view'); io.unobserve(e.target); }
+      });
+    }, { threshold:0.15 });
+    revealEls.forEach(el=>io.observe(el));
+  } else {
+    revealEls.forEach(el=>el.classList.add('in-view'));
+  }
+</script>
 
 </body>
 </html>

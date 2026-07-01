@@ -53,34 +53,50 @@ def extract_text_from_pdf(pdf_file):
 def analyze_resume(resume_text, jd_text=""):
 
     prompt = f"""
+You are an Expert ATS Resume Reviewer.
 
+Analyze the resume against the Job Description.
 
-You are an Expert ATS Resume Reviewer,
-Recruiter, Prompt Engineer and Career Coach.
+IMPORTANT:
+Always return exactly in this format.
 
-Analyze the resume against the provided Job Description.
+ATS Score: XX/100
+Resume Match Score: XX%
+Interview Readiness Score: XX%
 
-Provide:
+Matching Skills:
+- Skill 1
+- Skill 2
+- Skill 3
 
-1. ATS Score (0-100)
+Missing Skills:
+- Skill 1
+- Skill 2
+- Skill 3
 
-2. Resume Match Score (%)
+Strengths:
+- Point 1
+- Point 2
+- Point 3
 
-3. Matching Skills
+Weaknesses:
+- Point 1
+- Point 2
+- Point 3
 
-4. Missing Skills
+Project Review:
+- Point 1
+- Point 2
 
-5. Strengths
+Resume Improvements:
+- Point 1
+- Point 2
+- Point 3
 
-6. Weaknesses
-
-7. Project Review
-
-8. Resume Improvements
-
-9. Interview Readiness Score
-
-10. Learning Roadmap
+Learning Roadmap:
+- Point 1
+- Point 2
+- Point 3
 
 Resume:
 {resume_text}
@@ -90,8 +106,8 @@ Job Description:
 """
 
     response = model.generate_content(prompt)
-    return response.text
 
+    return response.text
 
 
 
